@@ -92,7 +92,7 @@ Wanna support me? Donate to 0xb4D16C6DAE02815F9200B3b600068830a4a72f42 (BSC)
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![image](https://user-images.githubusercontent.com/14006479/149170002-05c906cb-0271-4611-bfa7-6e6a2514ca1f.png)
+![BotApp](https://user-images.githubusercontent.com/14006479/149176831-ea0235fa-a122-4002-a2c9-f0b6877aa690.png)
 
 Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email`, `email_client`, `project_title`, `project_description`
 
