@@ -133,7 +133,8 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    npm install
    ```
-
+   Use a vpn to get closer to the nodes
+<a href="https://zap-hosting.com/a/79c683364d222290bd855f219168995f745c6ce7"><img src="https://zap-hosting.com/interface/download/images.php?type=affiliate&id=191233" alt="ZAP-Hosting Gameserver and Webhosting"></a>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
