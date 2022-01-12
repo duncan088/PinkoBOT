@@ -1,4 +1,6 @@
 PinkoBot
+![image](https://user-images.githubusercontent.com/14006479/149170002-05c906cb-0271-4611-bfa7-6e6a2514ca1f.png)
+
 Free to use and change.
 Dependencies: Nethereum 4.1, Console Control WPF, MetroUI.
 Using: https://github.com/dwmkerr/consolecontrol and https://github.com/Nethereum/Nethereum.Uniswap-V2-and-V3
