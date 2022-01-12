@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Bot ico2 (2).ico</ApplicationIcon>
+    <Authors>Pinko Bot</Authors>
+    <PackageId>Pinko Bot</PackageId>
+    <Product>PinkoBot</Product>
+    <PackageIcon>Bot ico2.png</PackageIcon>
+    <AssemblyVersion>0.9.0.0</AssemblyVersion>
+    <FileVersion>0.9.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Bot ico2 (2).ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\halod\Desktop\Bot ico2.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="2.4.9" />
+    <PackageReference Include="Nethereum.ABI" Version="4.1.1" />
+    <PackageReference Include="Nethereum.Accounts" Version="4.1.1" />
+    <PackageReference Include="Nethereum.Contracts" Version="4.1.1" />
+    <PackageReference Include="Nethereum.Hex" Version="4.1.1" />
+    <PackageReference Include="Nethereum.Signer" Version="4.1.1" />
+    <PackageReference Include="Nethereum.Util" Version="4.1.1" />
+    <PackageReference Include="Nethereum.Web3" Version="4.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\halod\Desktop\consolecontrol-master\source\ConsoleControl.WPF\ConsoleControl.WPF.csproj" />
+    <ProjectReference Include="C:\Users\halod\Desktop\consolecontrol-master\source\ConsoleControlAPI\ConsoleControlAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
