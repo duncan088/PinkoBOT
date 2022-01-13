@@ -209,7 +209,7 @@
                             </Binding.ValidationRules>
                         </Binding>
                     </TextBox>
-                    <TextBox x:Name="profitT" TextWrapping="Wrap" Margin="12,234,418,398" PreviewTextInput="PreviewTextInputInt" Validation.ErrorTemplate="{StaticResource ValidationTemplate}" FontWeight="Bold" FontSize="14" VerticalContentAlignment="Center" Grid.Column="2" IsEnabled="True">
+                    <TextBox x:Name="profitT" TextWrapping="Wrap" Margin="12,234,418,398" PreviewTextInput="PreviewTextInput" Validation.ErrorTemplate="{StaticResource ValidationTemplate}" FontWeight="Bold" FontSize="14" VerticalContentAlignment="Center" Grid.Column="2" IsEnabled="True">
                         <Binding Path="Profit" Source="{StaticResource Ods}" 
                 UpdateSourceTrigger="PropertyChanged" >
                             <Binding.ValidationRules>
@@ -244,6 +244,7 @@
                         <ComboBoxItem Content="PancakeSwap"/>
                         <ComboBoxItem Content="ApeSwap"/>
                         <ComboBoxItem Content="BiSwap"/>
+                        <ComboBoxItem Content="test"/>
                     </ComboBox>
                 </Grid>
             </TabItem>

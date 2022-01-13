@@ -30,13 +30,13 @@ namespace BotWpf
         private readonly string RugdocCheckUrl =
             "https://honeypot.api.rugdoc.io/api/honeypotStatus.js?address={0}&chain=bsc";
 
-        public static string bnbcontrac = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-        public static string busdcontrac = "0xe9e7cea3dedca5984780bafc599bd69add087d56";
-       // public static string bnbcontractTestNet = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
-       // public static string busdcontractTestNet = "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684";
+       // public static string bnbcontrac = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+     //   public static string busdcontrac = "0xe9e7cea3dedca5984780bafc599bd69add087d56";
+        public static string bnbcontrac = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
+        public static string busdcontrac = "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684";
         public static string usdtContract = "0x55d398326f99059fF775485246999027B3197955";
    
-        public  static string currentRouter = "Pancake";
+        public  static string currentRouter = "pancake";
         private Bot _bot;
         public ObservableCollection<TxResult> resultsBuy = new ObservableCollection<TxResult>();
         public static decimal tokenBalanceD = 0;
@@ -45,6 +45,7 @@ namespace BotWpf
         public static decimal tokenPriceLast = 0;
         public static decimal tokenPriceAmountLast = 0;
         public static decimal tokenPriceBuy = 0;
+        public static decimal tokenPriceBuyc = 0;
         public static decimal tokenPriceSell = 0;
         public static MainWindow Instance;
         static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -402,20 +403,35 @@ namespace BotWpf
                                                 gweiAmount.Text);
                                             if (resultado.result == "Success")
                                             {
-                                                if (approveAfter.IsOn)
-                                                {
-                                                    await _bot.AproveTask(tokenBuy.Text, gweiAmount.Text);
-                                                }
-                                                if (autoSellOn.IsOn)
-                                                {
-                                                    DoingSomething = false;
-                                                    amountSell.Text = resultado.value;
-                                                    AutosellTask(int.Parse(delay.Text), int.Parse(profitT.Text));
-                                                }
-                                            tokenPriceBuy = tokenPriceLast;
-                                            tokenPriceBuy = tokenPriceLast * decimal.Parse(resultado.value);
-                                            tokenbuyPrice.Content = tokenPriceBuy.ToString();
-                                        }
+                                                tokenPriceBuyc = tokenPriceLast;
+                                                tokenPriceBuy = tokenPriceLast * decimal.Parse(resultado.value);
+                                                tokenbuyPrice.Content = tokenPriceBuy.ToString();
+                                if (approveAfter.IsOn)
+                                {
+                                    Consola1.WriteOutput(Environment.NewLine +
+                                                         ($"Approving Token on {0}", currentRouter), Colors.Green);
+                                    var result = await _bot.AproveTask(tokenBuy.Text, gweiAmount.Text);
+
+                                    resultsBuy.Add(result);
+                                    if (result.result == "Success")
+                                    {
+                                        Consola1.WriteOutput(Environment.NewLine + "Contract Approved", Colors.Green);
+
+                                    }
+                                    else
+                                    {
+
+                                        Consola1.WriteOutput(Environment.NewLine + "Failed to Approve, see if token exist and see txhash", Colors.Green);
+                                    }
+                                }
+                                if (autoSellOn.IsOn)
+                                {
+                                    DoingSomething = false;
+                                    amountSell.Text = resultado.value;
+                                    AutosellTask(int.Parse(delay.Text), decimal.Parse(profitT.Text));
+                                }
+
+                            }
                                             resultsBuy.Add(resultado);
                                     
                                    
@@ -584,18 +600,32 @@ namespace BotWpf
                                var resultado = await _bot.DeBNBaToken(amountBuy.Text, slip, lista, gweiAmount.Text);
                                 if (resultado.result == "Success")
                                 {
-                                    tokenPriceBuy = tokenPriceLast* decimal.Parse(resultado.value);
+                                    tokenPriceBuyc = tokenPriceLast;
+                            tokenPriceBuy = tokenPriceLast* decimal.Parse(resultado.value);
                                     tokenbuyPrice.Content= tokenPriceBuy.ToString();
                                     resultsBuy.Add(resultado);
                                     if (approveAfter.IsOn)
-                                    {
-                                        await _bot.AproveTask(tokenBuy.Text, gweiAmount.Text);
+                                    { Consola1.WriteOutput(Environment.NewLine+
+                                                           ($"Approving Token on {0}", currentRouter),Colors.Green);
+                                        var result = await _bot.AproveTask(tokenBuy.Text, gweiAmount.Text);
+
+                                         resultsBuy.Add(result);
+                                          if (result.result == "Success")
+                                          {
+                                           Consola1.WriteOutput(Environment.NewLine + "Contract Approved", Colors.Green);
+
+                                          }
+                                          else
+                                          {
+
+                                              Consola1.WriteOutput(Environment.NewLine + "Failed to Approve, see if token exist and see txhash", Colors.Green);
+                                          }
                                     }
                                     if (autoSellOn.IsOn)
                                     {
                                         DoingSomething = false;
                                         amountSell.Text = resultado.value;
-                                        AutosellTask(int.Parse(delay.Text), int.Parse(profitT.Text));
+                                        AutosellTask(int.Parse(delay.Text), decimal.Parse(profitT.Text));
                                     }
 
                                 }
@@ -611,10 +641,7 @@ namespace BotWpf
                 sellBtnAll.IsEnabled = true;
                 sellBtnX.IsEnabled = true;
             }
-            async Task PutTaskDelay()
-            {
-                await Task.Delay(int.Parse(delay.Text));
-            }
+          
         public bool ValidarDatosBuy()
             {
                 if (amountBuy.Text != "" && gweiAmount.Text != "")
@@ -908,7 +935,7 @@ namespace BotWpf
 
             public async Task AutosellTask(int delay, decimal profit)
             {
-                var calc = tokenPriceBuy * profit;
+                var calc = tokenPriceBuyc * profit;
                 try
                 {
                     await Task.Delay(delay*1000);
@@ -1150,6 +1177,9 @@ namespace BotWpf
                 case "BiSwap":
 
                     _bot.ChangeSwap("bi");
+                    break;
+                case "test":
+                    _bot.ChangeSwap("test");
                     break;
                 default:
 
