@@ -55,7 +55,7 @@
                         <GroupBox.BorderBrush>
                             <SolidColorBrush Color="#CC0078D7" Opacity="0.01"/>
                         </GroupBox.BorderBrush>
-                        <consoleControl:ConsoleControl x:Name="Consola1" FontWeight="Bold" FontSize="14"/>
+                        <consoleControl:ConsoleControl x:Name="Consola1" FontWeight="Bold" FontSize="14" Loaded="Consola1_Loaded"/>
 
                     </GroupBox>
                     <DataGrid x:Name="buyTxGrid"  AutoGenerateColumns="False" Margin="363,490,0,0" Background="#FFE6E6E6" Grid.ColumnSpan="2" SelectedCellsChanged="buyTxGrid_SelectedCellsChanged" Grid.Column="1">

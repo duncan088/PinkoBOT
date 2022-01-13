@@ -32,18 +32,12 @@ namespace BotWpf
 
         public static string bnbcontrac = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
         public static string busdcontrac = "0xe9e7cea3dedca5984780bafc599bd69add087d56";
-       // public static string bnbcontrac = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
-       // public static string busdcontrac = "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684";
+       // public static string bnbcontractTestNet = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
+       // public static string busdcontractTestNet = "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684";
         public static string usdtContract = "0x55d398326f99059fF775485246999027B3197955";
-        public static string pancakeSwapFactoryAddress = "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73";
-        public static string apeSwapFactory = "0x0841BD0B734E4F5853f0dD8d7Ea041c241fb0Da6";
-        public static string panacakSwapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
-        public static string biSwapFactoy = "0x858E3312ed3A876947EA49d572A7C42DE08af7EE";
-        public static string biSwapRouter = "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8";
-        public static string apeSwapRouter = "0xcf0febd3f17cef5b47b0cd257acf6025c5bff3b7";
-        public static string panacakSwapRoutertest = "0x9ac64cc6e4415144c455bd8e4837fea55603e5c3";
-        public  static string currentRouter = panacakSwapRouter;
-        public static string currentFactory = pancakeSwapFactoryAddress;
+   
+        public  static string currentRouter = "Pancake";
+        private Bot _bot;
         public ObservableCollection<TxResult> resultsBuy = new ObservableCollection<TxResult>();
         public static decimal tokenBalanceD = 0;
         public static decimal bnbBalanceD = 0;
@@ -55,13 +49,13 @@ namespace BotWpf
         public static MainWindow Instance;
         static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static bool DoingSomething = false;
-
-        public static string wallet="";
+        
     public MainWindow()
         {
             InitializeComponent();
-            Instance = this; 
-
+            Instance = this;
+            _bot = new Bot(Properties.Settings.Default.Wallet, Properties.Settings.Default.PK,
+                Properties.Settings.Default.BSCNODE, "pancake", ref Consola1);
             buyTxGrid.ItemsSource = resultsBuy;
             _httpClient = new HttpClient();
             Task.Run(async () => await TokenBalance());
@@ -69,8 +63,8 @@ namespace BotWpf
             bscNode.Text = Properties.Settings.Default.BSCNODE;
             pkAddress.Password = Properties.Settings.Default.PK;
             ValDatos();
-            
-            
+          
+
         }
         
         protected override void OnSourceInitialized(EventArgs e)
@@ -145,6 +139,7 @@ namespace BotWpf
                         sellBtnAll.IsEnabled = true;
                         sellBtnX.IsEnabled = true;
                         
+                        
                     }
                     else
                     {
@@ -161,9 +156,9 @@ namespace BotWpf
                 {
                     try
                     {
-                        var bnbPrice2 = await BotHandler.TokenValueTask(bnbcontrac, busdcontrac);
+                        var bnbPrice2 = await _bot.TokenValueTask(bnbcontrac, busdcontrac);
                     
-                        bnbBalance = await BotHandler.GetAccountBalance();
+                        bnbBalance = await _bot.GetAccountBalance();
                         await  Application.Current.Dispatcher.BeginInvoke(new Action(() => {
                             bnbBalanceD=bnbBalance;
                         }), DispatcherPriority.Render);
@@ -185,12 +180,12 @@ namespace BotWpf
                         if (text.IsValidEthereumAddressHexFormat())
                         {
                             decimal value2 = 0;
-                            var result = await BotHandler.TokenBalanceAsync(text);
+                            var result = await _bot.TokenBalanceAsync(text);
                             BigDecimal value = 0;
                             
                             if (buytoken == "BNB")
                             {
-                                value = await BotHandler.TokenValueTask(text, bnbcontrac);
+                                value = await _bot.TokenValueTask(text, bnbcontrac);
                                 if(bnbPrice!=0)
                                     value = (decimal) (value * bnbPrice);
                             }
@@ -198,14 +193,14 @@ namespace BotWpf
                             {
                                 if (buytoken == "BUSD")
                                 {
-                                    value = await BotHandler.TokenValueTask(text, busdcontrac);
+                                    value = await _bot.TokenValueTask(text, busdcontrac);
                                 
                                 }
                                 else
                                 {
                                     if (buytoken == "USDT")
                                     {
-                                        value = await BotHandler.TokenValueTask(text, usdtContract);
+                                        value = await _bot.TokenValueTask(text, usdtContract);
                                     
                                     }
                                 }
@@ -280,7 +275,7 @@ namespace BotWpf
                 if (pairRoute.IsOn)
                 {
 
-                    pair = await BotHandler.GetNewPairs(tokenBuy.Text, true, pairRoute.IsOn,
+                    pair = await _bot.GetNewPairs(tokenBuy.Text, true, pairRoute.IsOn,
                         cancellationTokenSource.Token);
 
                    // Consola1.WriteOutput(Environment.NewLine + "Probando venta", Colors.Green);
@@ -291,7 +286,7 @@ namespace BotWpf
                         PairReserve reserves = new PairReserve();
                        
                         
-                            reserves = await BotHandler.GetReservesRouteTask(pair, cancellationTokenSource.Token);
+                            reserves = await _bot.GetReservesRouteTask(pair, cancellationTokenSource.Token);
                     Consola1.WriteOutput(Environment.NewLine + "Pair: " + reserves.Pair,
                         Colors.Aqua);
                     if (reserves.Pair == bnbcontrac)
@@ -335,7 +330,7 @@ namespace BotWpf
                                 if (!slipMax_Copy.IsOn)
                                 {
 
-                                    var amount = await BotHandler.SlippageTask(busdcontrac,
+                                    var amount = await _bot.SlippageTask(busdcontrac,
                                         tokenBuy.Text,
                                         amountBuy.Text);
                                     slip = ((decimal) (Web3.Convert.FromWei(amount,
@@ -354,7 +349,7 @@ namespace BotWpf
                                     {
                                         var input = decimal.Parse(amountBuy.Text) *
                                                     bnbPrice;
-                                        var amount = await BotHandler.SlippageTask(
+                                        var amount = await _bot.SlippageTask(
                                             busdcontrac, tokenBuy.Text,
                                             input.ToString());
                                         slip = ((decimal) (Web3.Convert.FromWei(amount,
@@ -375,7 +370,7 @@ namespace BotWpf
                                         {
                                             var input = decimal.Parse(amountBuy.Text) *
                                                         bnbPrice;
-                                            var amount = await BotHandler.SlippageTask(
+                                            var amount = await _bot.SlippageTask(
                                                 usdtContract, tokenBuy.Text,
                                                 input.ToString());
                                             slip = ((decimal) (Web3.Convert.FromWei(amount,
@@ -401,7 +396,7 @@ namespace BotWpf
                                                              "Buying " + tokenName.Content + " amount: " +
                                                              amountBuy.Text,
                                             Colors.Green);
-                                            var resultado = await BotHandler.DeBNBaToken(
+                                            var resultado = await _bot.DeBNBaToken(
                                                 amountBuy.Text, slip,
                                                 lista,
                                                 gweiAmount.Text);
@@ -409,7 +404,7 @@ namespace BotWpf
                                             {
                                                 if (approveAfter.IsOn)
                                                 {
-                                                    await BotHandler.AproveTask(tokenBuy.Text, gweiAmount.Text);
+                                                    await _bot.AproveTask(tokenBuy.Text, gweiAmount.Text);
                                                 }
                                                 if (autoSellOn.IsOn)
                                                 {
@@ -445,12 +440,12 @@ namespace BotWpf
                         decimal reserves = 0;
                         if (!hasLiquidity.IsOn)
                         {
-                            pair = await BotHandler.GetNewPairs(tokenBuy.Text, true, false,
+                            pair = await _bot.GetNewPairs(tokenBuy.Text, true, false,
                                 cancellationTokenSource.Token);
                             if (pair.isFound)
                             {
                                 pairF = true;
-                                reserves = await BotHandler.GetReservesTask(pair.pairAddress, 1,
+                                reserves = await _bot.GetReservesTask(pair.pairAddress, 1,
                                     cancellationTokenSource.Token);
                             }
                         }
@@ -468,7 +463,7 @@ namespace BotWpf
                             tokenPair1.Content = "BNB";
                             if (!slipMax_Copy.IsOn)
                             {
-                                var amount = await BotHandler.SlippageTask(bnbcontrac,
+                                var amount = await _bot.SlippageTask(bnbcontrac,
                                     tokenBuy.Text,
                                     amountBuy.Text);
 
@@ -491,13 +486,13 @@ namespace BotWpf
                             decimal reserves = 0;
                             if (!hasLiquidity.IsOn)
                             {
-                                pair = await BotHandler.GetNewPairs(tokenBuy.Text, false, false,
+                                pair = await _bot.GetNewPairs(tokenBuy.Text, false, false,
                                     cancellationTokenSource.Token);
 
                                 if (pair.isFound)
                                 {
                                     pairF = true;
-                                    reserves = await BotHandler.GetReservesTask(
+                                    reserves = await _bot.GetReservesTask(
                                         pair.pairAddress, 1,
                                         cancellationTokenSource.Token);
                                 }
@@ -518,7 +513,7 @@ namespace BotWpf
                                 if (!slipMax_Copy.IsOn)
                                 {
                                     var input = decimal.Parse(amountBuy.Text) * bnbPrice;
-                                    var amount = await BotHandler.SlippageTask(busdcontrac,
+                                    var amount = await _bot.SlippageTask(busdcontrac,
                                         tokenBuy.Text,
                                         input.ToString());
                                     slip = ((decimal) (Web3.Convert.FromWei(amount,
@@ -538,13 +533,13 @@ namespace BotWpf
                                 decimal reserves = 0;
                                 if (!hasLiquidity.IsOn)
                                 {
-                                    pair = await BotHandler.GetPairTask(tokenBuy.Text,
+                                    pair = await _bot.GetPairTask(tokenBuy.Text,
                                         usdtContract, cancellationTokenSource.Token);
 
                                     if (pair.isFound)
                                     {
                                         pairF = true;
-                                        reserves = await BotHandler.GetReservesTask(
+                                        reserves = await _bot.GetReservesTask(
                                             pair.pairAddress, 1,
                                             cancellationTokenSource.Token);
                                     }
@@ -565,7 +560,7 @@ namespace BotWpf
                                     if (!slipMax_Copy.IsOn)
                                     {
                                         var input = decimal.Parse(amountBuy.Text) * bnbPrice;
-                                        var amount = await BotHandler.SlippageTask(usdtContract,
+                                        var amount = await _bot.SlippageTask(usdtContract,
                                             tokenBuy.Text,
                                             input.ToString());
                                         slip = ((decimal) (Web3.Convert.FromWei(amount,
@@ -586,7 +581,7 @@ namespace BotWpf
                         {
                             
                                 Consola1.WriteOutput(Environment.NewLine + "Buying " + tokenName.Content + " amount: " + amountBuy.Text, Colors.Green);
-                               var resultado = await BotHandler.DeBNBaToken(amountBuy.Text, slip, lista, gweiAmount.Text);
+                               var resultado = await _bot.DeBNBaToken(amountBuy.Text, slip, lista, gweiAmount.Text);
                                 if (resultado.result == "Success")
                                 {
                                     tokenPriceBuy = tokenPriceLast* decimal.Parse(resultado.value);
@@ -594,7 +589,7 @@ namespace BotWpf
                                     resultsBuy.Add(resultado);
                                     if (approveAfter.IsOn)
                                     {
-                                        await BotHandler.AproveTask(tokenBuy.Text, gweiAmount.Text);
+                                        await _bot.AproveTask(tokenBuy.Text, gweiAmount.Text);
                                     }
                                     if (autoSellOn.IsOn)
                                     {
@@ -641,9 +636,9 @@ namespace BotWpf
                                                 if (decimal.Parse(profitT.Text) == 0 || decimal.Parse(profitT.Text) > 1)
                                                     return true;
                                                 else
-                                                {
+                                                {Consola1.WriteOutput(Environment.NewLine+"Enter 0 on profit for disable or >1 for enable no use for 1>X>0",Colors.Red);
                                                     return false;
-                                                    Consola1.WriteOutput(Environment.NewLine+"Enter 0 on profit for disable or >1 for enable no use for 1>X>0",Colors.Red);
+                                                    
                                                 }
                                           
                                         }
@@ -704,7 +699,7 @@ namespace BotWpf
                     if (tokenBuy.Text.Length == 42)
                     {
                         DoingSomething = true;
-                        var result = await BotHandler.AproveTask(tokenBuy.Text, gweiAmount.Text);
+                        var result = await _bot.AproveTask(tokenBuy.Text, gweiAmount.Text);
                     
                         resultsBuy.Add(result);
                         if (result.result== "Success")
@@ -768,7 +763,7 @@ namespace BotWpf
                                             if (!slipMax.IsOn)
                                             {
                                    
-                                                var amount = await BotHandler.SlippageTask(tokenBuy.Text,bnbcontrac,
+                                                var amount = await _bot.SlippageTask(tokenBuy.Text,bnbcontrac,
                                                     amountSell.Text);
                                                 slip = ((decimal)(Web3.Convert.FromWei(amount,
                                                     UnitConversion.EthUnit.Ether))) * ((100 - decimal.Parse(SlipSell.Text)) / 100);
@@ -788,7 +783,7 @@ namespace BotWpf
                                                 if (!slipMax.IsOn)
                                                 {
                                         
-                                                    var amount = await BotHandler.SlippageTask( tokenBuy.Text,busdcontrac,
+                                                    var amount = await _bot.SlippageTask( tokenBuy.Text,busdcontrac,
                                                         amountSell.Text);
                                                     slip = ((decimal)(Web3.Convert.FromWei(amount,
                                                         UnitConversion.EthUnit.Ether))) * ((100 - decimal.Parse(SlipSell.Text)) / 100)*bnbPrice;
@@ -806,7 +801,7 @@ namespace BotWpf
                                                 {
                                                     if (!slipMax.IsOn)
                                                     {
-                                                        var amount = await BotHandler.SlippageTask(tokenBuy.Text, usdtContract,
+                                                        var amount = await _bot.SlippageTask(tokenBuy.Text, usdtContract,
                                                             amountSell.Text);
                                                         slip = ((decimal)(Web3.Convert.FromWei(amount,
                                                             UnitConversion.EthUnit.Ether))) * ((100 - decimal.Parse(SlipSell.Text)) / 100)* bnbPrice;
@@ -862,7 +857,7 @@ namespace BotWpf
             if (path.Count > 0)
             {
                
-                    result = await BotHandler.DeTokenABNB(amountSell.Text, slip, path, gweiAmount_Copy.Text);
+                    result = await _bot.DeTokenABNB(amountSell.Text, slip, path, gweiAmount_Copy.Text);
                     resultsBuy.Add(result);
                 if (result.result == "Success")
                 {
@@ -898,7 +893,7 @@ namespace BotWpf
                 {
                     if (text.Text.IsValidEthereumAddressHexFormat())
                     {
-                        var name = await BotHandler.GetNameTask(text.Text);
+                        var name = await _bot.GetNameTask(text.Text);
                         await Application.Current.Dispatcher.BeginInvoke(new Action(() => {
                             tokenName.Content = name.ToString() + " Value"; tokenNameB.Content = name.ToString() + " Balance";
                         }), DispatcherPriority.Render);
@@ -1021,6 +1016,9 @@ namespace BotWpf
                 Properties.Settings.Default.BSCNODE = bscNode.Text;
                 Properties.Settings.Default.PK = pkAddress.Password;
                 Properties.Settings.Default.Save();
+                _bot.ChangeNode(bscNode.Text);
+                _bot.ChangePK(pkAddress.Password);
+                _bot.ChangeWallet(walletAddress.Text);
                 ValDatos();
             }
 
@@ -1142,48 +1140,34 @@ namespace BotWpf
             switch (text.Text)
             {
                 case "PancakeSwap":
-                    currentFactory = pancakeSwapFactoryAddress;
-                    currentRouter = panacakSwapRouter;
+                   
+                    _bot.ChangeSwap("pancake");
                     break;
                 case "ApeSwap":
-                    currentFactory = apeSwapFactory;
-                    currentRouter = apeSwapRouter;
+
+                    _bot.ChangeSwap("ape");
                     break;
                 case "BiSwap":
-                    currentFactory = biSwapFactoy;
-                    currentRouter = biSwapRouter;
+
+                    _bot.ChangeSwap("bi");
                     break;
                 default:
-                    currentFactory = pancakeSwapFactoryAddress;
-                    currentRouter = panacakSwapRouter;
+
+                    _bot.ChangeSwap("pancake");
 
                     break;
             }
         }
-    }
 
-
-
-    public class TokenSearchResult
-    {
-        public TokenSearchResult()
+        private void Consola1_Loaded(object sender, RoutedEventArgs e)
         {
-            pairP = 0;
-            pairAddress = "";
-            pairAddressBUSD = "";
-            pairAddressUSDT = "";
-            tokenPair = "";
-            isFound = false;
+
         }
-        public int pairP { get; set; }
-        public string pairAddress { get; set; }
-        public string pairAddressBUSD { get; set; }
-        public string pairAddressUSDT { get; set; }
-        public string tokenPair { get; set; }
-        public bool isFound { get; set; }
-
-
     }
+
+
+
+
     public class AddressValid : ValidationRule
     {
     
@@ -1350,14 +1334,17 @@ namespace BotWpf
 
         }
     }
-    public class TxResult
+    public class CustomLabel : Label
     {
-        public string txHash { get; set; }
-        public string result { get; set; }
-        public string value { get; set; }
-        public string ValueSpend { get; set; }
-        public DateTime Time { get; set; }
+        public event EventHandler ContentChanged;
 
+        protected override void OnContentChanged(object oldContent, object newContent)
+        {
+            base.OnContentChanged(oldContent, newContent);
+
+            if (ContentChanged != null)
+                ContentChanged(this, EventArgs.Empty);
+        }
     }
     public class MyDataSource
     {
