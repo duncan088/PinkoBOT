@@ -258,7 +258,7 @@
                         <ColumnDefinition Width="593*"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Wallet" FontSize="20" FontWeight="Bold" Margin="10,4,544,452" Grid.ColumnSpan="2"/>
-                    <TextBox x:Name="walletAddress" TextWrapping="Wrap"  Margin="90,10,45,620" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Validation.ErrorTemplate="{StaticResource ValidationTemplate}" IsReadOnly="False"
+                    <TextBox x:Name="walletAddress" TextWrapping="Wrap"  Margin="90,10,45,620" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Validation.ErrorTemplate="{StaticResource ValidationTemplate}" IsReadOnly="True"
                              Style="{StaticResource TextBoxInError}" Grid.Column="1">
                         <TextBox.Text>
                             <Binding Path="wallet" Source="{StaticResource Ods}" 
@@ -271,7 +271,7 @@
                     </TextBox>
                     <Label Content="Private Key" FontSize="20" FontWeight="Bold" Margin="10,39,549,416" Grid.ColumnSpan="2"/>
                     <Label Content="BSC Node" FontSize="20" FontWeight="Bold" Margin="10,79,544,370" Grid.ColumnSpan="2"/>
-                    
+
                     <Button Content="Save" Margin="354,193,396,432" Click="Button_Click_2" Grid.Column="1"/>
                     <PasswordBox  x:Name="pkAddress"  Margin="90,44,45,582" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Grid.Column="1"/>
                     <TextBox x:Name="bscNode" TextWrapping="Wrap" Text="" Margin="90,79,45,545" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Grid.Column="1"/>
@@ -280,6 +280,9 @@
                     <Label Content="Donate To" FontSize="20" FontWeight="Bold" Margin="15,314,539,142" RenderTransformOrigin="0,0" Grid.ColumnSpan="2"/>
                     <TextBox x:Name="donateAddress" TextWrapping="Wrap" Text="0xb4D16C6DAE02815F9200B3b600068830a4a72f42" Margin="95,314,45,312" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" IsReadOnly="True" Grid.Column="1" />
                     <Button Content="Copy" Margin="354,398,396,226" Click="Button_Click_3" Grid.Column="1"/>
+                    <Label Content="ExpireTime" FontSize="20" FontWeight="Bold" Margin="10,119,544,337" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="timeleft" TextWrapping="Wrap"  Margin="89,119,45,511" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False"  IsReadOnly="True"
+                      Grid.Column="1" Text="0"/>
 
                 </Grid>
             </TabItem>

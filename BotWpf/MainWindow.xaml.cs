@@ -50,6 +50,7 @@ namespace BotWpf
         public static MainWindow Instance;
         static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static bool DoingSomething = false;
+
         
     public MainWindow()
         {
@@ -63,12 +64,39 @@ namespace BotWpf
              walletAddress.Text= Properties.Settings.Default.Wallet ;
             bscNode.Text = Properties.Settings.Default.BSCNODE;
             pkAddress.Password = Properties.Settings.Default.PK;
+            buyBtn.IsEnabled = false;
+            sellBtn.IsEnabled = false;
+            sellBtnAll.IsEnabled = false;
+            sellBtnX.IsEnabled = false;
+            try
+            {
+                LoadLicense();
+            }
+            catch (Exception e)
+            {
+                Consola1.WriteOutput(Environment.NewLine+"No license found",Colors.Red);
+                
+            }
             ValDatos();
           
 
         }
-        
-        protected override void OnSourceInitialized(EventArgs e)
+
+    private void LoadLicense()
+    {
+        try
+        {
+            License.Status.LoadLicense("Key.license");
+            }
+        catch (Exception e)
+        {
+            Consola1.WriteOutput(Environment.NewLine + "No license found", Colors.Red);
+
+            }
+       
+    }
+
+    protected override void OnSourceInitialized(EventArgs e)
         {
                 base.OnSourceInitialized(e);
 
@@ -130,22 +158,29 @@ namespace BotWpf
         }
             public async void ValDatos()
             {
-               
-             
-                if (Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat() && Properties.Settings.Default.BSCNODE.Length>4 &&
+
+                if (License.Status.Licensed)
+                {
+                    this.Title = "Pinko Bot - " + walletAddress.Text;
+                    timeleft.Text = License.Status.Expiration_Date.ToString();
+                    if (Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat() && Properties.Settings.Default.BSCNODE.Length > 4 &&
                         Properties.Settings.Default.PK.Length == 66)
                     {
                         buyBtn.IsEnabled = true;
                         sellBtn.IsEnabled = true;
                         sellBtnAll.IsEnabled = true;
                         sellBtnX.IsEnabled = true;
-                        
-                        
                     }
                     else
                     {
-                        Consola1.WriteOutput("Please set account info before continue.",Colors.Red);
+                        Consola1.WriteOutput("Please set account info before continue.", Colors.Red);
                     }
+            }
+                else
+                {
+                    this.Title = "Pinko Bot - Unlicensed";
+                }
+                
                 
           
             }
@@ -659,14 +694,16 @@ namespace BotWpf
                                     {
                                         if (int.Parse(gweiAmount.Text) > 0 && decimal.Parse(amountBuy.Text) > 0)
                                         {
-                                            
-                                                if (decimal.Parse(profitT.Text) == 0 || decimal.Parse(profitT.Text) > 1)
-                                                    return true;
-                                                else
-                                                {Consola1.WriteOutput(Environment.NewLine+"Enter 0 on profit for disable or >1 for enable no use for 1>X>0",Colors.Red);
+
+                                            if (decimal.Parse(profitT.Text) == 0 || decimal.Parse(profitT.Text) > 1)
+                                            {
+                                                return true;
+
+                                            }
+                                            else
+                                            {Consola1.WriteOutput(Environment.NewLine+"Enter 0 on profit for disable or >1 for enable no use for 1>X>0",Colors.Red);
                                                     return false;
-                                                    
-                                                }
+                                            }
                                           
                                         }
                                         else

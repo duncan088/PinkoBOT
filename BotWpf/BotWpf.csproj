@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Bot ico2 (2).ico</ApplicationIcon>
     <Authors>Pinko Bot</Authors>
     <PackageId>Pinko Bot</PackageId>
     <Product>PinkoBot</Product>
     <PackageIcon>Bot ico2.png</PackageIcon>
-    <AssemblyVersion>0.9.0.0</AssemblyVersion>
-    <FileVersion>0.9.0.0</FileVersion>
+    <AssemblyVersion>0.9.5.0</AssemblyVersion>
+    <FileVersion>0.9.5.0</FileVersion>
     <RepositoryUrl>https://github.com/duncan088/PinkoBOT/</RepositoryUrl>
   </PropertyGroup>
 
@@ -40,6 +40,12 @@
   <ItemGroup>
     <ProjectReference Include="C:\Users\halod\Desktop\consolecontrol-master\source\ConsoleControl.WPF\ConsoleControl.WPF.csproj" />
     <ProjectReference Include="C:\Users\halod\Desktop\consolecontrol-master\source\ConsoleControlAPI\ConsoleControlAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="License">
+      <HintPath>..\..\..\Eziriz\.NET Reactor\SDK\Binaries\License.dll .NET 5\License.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
