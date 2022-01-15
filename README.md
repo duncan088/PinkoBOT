@@ -199,7 +199,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Contact
 
 
-Wanna support me? Donate to 0xb4D16C6DAE02815F9200B3b600068830a4a72f42 (BSC)
+Wanna support me? Donate to 0x2BBCAc56d2c650C526226a45065E2c39cb60440C (BSC)
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
