@@ -90,7 +90,6 @@
 
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button x:Name="buyBtn" Content="Buy" Margin="53,309,404,315" Click="buyBtn_Click" Grid.Column="1"/>
                     <Label Content="Gwei" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="68" Width="134" Margin="10,200,0,0" Foreground="#FF373737"/>
                     <TextBox x:Name="tokenBuy" TextWrapping="Wrap" 
                              Margin="2,65,0,565" FontWeight="Bold" Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
@@ -136,8 +135,6 @@
                         </mah:ToggleSwitch.ToolTip>
                     </mah:ToggleSwitch>
 
-                    <Button x:Name="AproveBtn" Content="Aprove" Margin="230,309,0,315" Click="AproveBtn_Click" Grid.Column="1" HorizontalAlignment="Left" Width="169"/>
-                    <Button x:Name="stop" Content="Stop" Margin="20,310,584,315" Click="stop_Click" Grid.ColumnSpan="2"/>
                     <TextBox x:Name="tokenBalance" TextWrapping="Wrap" Text="0" Margin="12,71,150,553" Grid.Column="2" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="14" IsReadOnly="True" TextChanged="tokenBalance_TextChanged"/>
                     <Label x:Name="Sell_" Content="Sell" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="68" Width="134" Foreground="#FF373737" Margin="463,155,0,0" Grid.Column="1"/>
                     <TextBox x:Name="amountSell" TextWrapping="Wrap"  Grid.Column="2" Margin="12,154,150,475" FontWeight="Bold" FontSize="14" VerticalContentAlignment="Center" PreviewTextInput="PreviewTextInput" Validation.ErrorTemplate="{StaticResource ValidationTemplate}">
@@ -170,7 +167,6 @@
                     </TextBox>
                     <mah:ToggleSwitch x:Name="autopaste" Height="100" Header="AutoPaste" Margin="274,237,0,0" VerticalAlignment="Top" Width="100" mah:HeaderedControlHelper.HeaderFontWeight="Bold" mah:HeaderedControlHelper.HeaderFontSize="14" mah:ControlsHelper.RecognizesAccessKey="False" FontWeight="Bold" Grid.Column="1"/>
                     <Button x:Name="sellBtnAll" Content="Sell All" Margin="189,311,114,315"  Grid.Column="2" Click="sellBtnAll_Click"/>
-                    <Button x:Name="sellBtn" Content="Sell" Margin="12,311,310,315" Click="sellBtn_Click" Grid.Column="2"/>
                     <mah:ToggleSwitch x:Name="slipMax" Height="100" Header="" Margin="80,183,0,0" VerticalAlignment="Top" Width="100" Grid.Column="2" OffContent="Max Off" OnContent="Max On" mah:HeaderedControlHelper.HeaderFontWeight="Bold" mah:HeaderedControlHelper.HeaderFontSize="11" mah:ControlsHelper.RecognizesAccessKey="False" mah:HeaderedControlHelper.HeaderFontFamily="Arial Black" FontWeight="Bold">
                         <mah:ToggleSwitch.ToolTip>
                             <ToolTip Content="Use to get any amount of token from buy/sell"/>
@@ -246,6 +242,10 @@
                         <ComboBoxItem Content="BiSwap"/>
                         <ComboBoxItem Content="test"/>
                     </ComboBox>
+                    <Button x:Name="stop" Content="Stop" Margin="20,310,584,315" Click="stop_Click" Grid.ColumnSpan="2"/>
+                    <Button x:Name="buyBtn" Content="Buy" Margin="53,309,404,315" Click="buyBtn_Click" Grid.Column="1"/>
+                    <Button x:Name="AproveBtn" Content="Aprove" Margin="230,309,0,315" Click="AproveBtn_Click" Grid.Column="1" HorizontalAlignment="Left" Width="169"/>
+                    <Button x:Name="sellBtn" Content="Sell" Margin="12,311,310,315" Click="sellBtn_Click" Grid.Column="2"/>
                 </Grid>
             </TabItem>
 
@@ -257,7 +257,7 @@
                         <ColumnDefinition Width="21*"/>
                         <ColumnDefinition Width="593*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="Wallet" FontSize="20" FontWeight="Bold" Margin="10,4,544,452" Grid.ColumnSpan="2"/>
+                    <Label Content="Wallet" FontSize="20" FontWeight="Bold" Margin="10,4,848,503" Grid.ColumnSpan="2"/>
                     <TextBox x:Name="walletAddress" TextWrapping="Wrap"  Margin="90,10,45,620" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Validation.ErrorTemplate="{StaticResource ValidationTemplate}" IsReadOnly="True"
                              Style="{StaticResource TextBoxInError}" Grid.Column="1">
                         <TextBox.Text>
@@ -269,20 +269,20 @@
                             </Binding>
                         </TextBox.Text>
                     </TextBox>
-                    <Label Content="Private Key" FontSize="20" FontWeight="Bold" Margin="10,39,549,416" Grid.ColumnSpan="2"/>
-                    <Label Content="BSC Node" FontSize="20" FontWeight="Bold" Margin="10,79,544,370" Grid.ColumnSpan="2"/>
-
-                    <Button Content="Save" Margin="354,193,396,432" Click="Button_Click_2" Grid.Column="1"/>
+                    <Label Content="Private Key" FontSize="20" FontWeight="Bold" Margin="10,39,920,468" Grid.ColumnSpan="2"/>
+                    <Label Content="BSC Node" FontSize="20" FontWeight="Bold" Margin="10,79,962,443" Grid.ColumnSpan="2"/>
                     <PasswordBox  x:Name="pkAddress"  Margin="90,44,45,582" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Grid.Column="1"/>
+                    <Button Content="Save" Margin="136,213,614,412" Click="Button_Click_2" Grid.Column="1"/>
                     <TextBox x:Name="bscNode" TextWrapping="Wrap" Text="" Margin="90,79,45,545" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Grid.Column="1"/>
 
 
                     <Label Content="Donate To" FontSize="20" FontWeight="Bold" Margin="15,314,539,142" RenderTransformOrigin="0,0" Grid.ColumnSpan="2"/>
-                    <TextBox x:Name="donateAddress" TextWrapping="Wrap" Text="0xb4D16C6DAE02815F9200B3b600068830a4a72f42" Margin="95,314,45,312" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" IsReadOnly="True" Grid.Column="1" />
+                    <TextBox x:Name="donateAddress" TextWrapping="Wrap" Text="0x2BBCAc56d2c650C526226a45065E2c39cb60440C" Margin="95,314,45,312" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" IsReadOnly="True" Grid.Column="1" />
                     <Button Content="Copy" Margin="354,398,396,226" Click="Button_Click_3" Grid.Column="1"/>
-                    <Label Content="ExpireTime" FontSize="20" FontWeight="Bold" Margin="10,119,544,337" Grid.ColumnSpan="2"/>
-                    <TextBox x:Name="timeleft" TextWrapping="Wrap"  Margin="89,119,45,511" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False"  IsReadOnly="True"
+                    <Label Content="ExpireTime" FontSize="20" FontWeight="Bold" Margin="10,119,1006,416" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="timeleft" TextWrapping="Wrap"  Margin="90,124,44,503" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False"  IsReadOnly="True"
                       Grid.Column="1" Text="0"/>
+                    <Button x:Name="ActivateBtn" Content="Activate" Margin="577,213,173,412"  Grid.Column="1" Click="ActivateBtn_Click"/>
 
                 </Grid>
             </TabItem>

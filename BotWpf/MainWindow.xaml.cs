@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -30,10 +31,10 @@ namespace BotWpf
         private readonly string RugdocCheckUrl =
             "https://honeypot.api.rugdoc.io/api/honeypotStatus.js?address={0}&chain=bsc";
 
-       // public static string bnbcontrac = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-     //   public static string busdcontrac = "0xe9e7cea3dedca5984780bafc599bd69add087d56";
-        public static string bnbcontrac = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
-        public static string busdcontrac = "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684";
+        public static string bnbcontrac = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+        public static string busdcontrac = "0xe9e7cea3dedca5984780bafc599bd69add087d56";
+      //  public static string bnbcontrac = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
+       // public static string busdcontrac = "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684";
         public static string usdtContract = "0x55d398326f99059fF775485246999027B3197955";
    
         public  static string currentRouter = "pancake";
@@ -66,6 +67,7 @@ namespace BotWpf
             pkAddress.Password = Properties.Settings.Default.PK;
             buyBtn.IsEnabled = false;
             sellBtn.IsEnabled = false;
+            AproveBtn.IsEnabled = false;
             sellBtnAll.IsEnabled = false;
             sellBtnX.IsEnabled = false;
             try
@@ -79,7 +81,6 @@ namespace BotWpf
             }
             ValDatos();
           
-
         }
 
     private void LoadLicense()
@@ -87,6 +88,7 @@ namespace BotWpf
         try
         {
             License.Status.LoadLicense("Key.license");
+            ValDatos();
             }
         catch (Exception e)
         {
@@ -161,12 +163,15 @@ namespace BotWpf
 
                 if (License.Status.Licensed)
                 {
-                    this.Title = "Pinko Bot - " + walletAddress.Text;
+                    var key = License.Status.KeyValueList.Values;
+                    walletAddress.Text=key.OfType<string>().FirstOrDefault();
+                this.Title = "Pinko Bot - " + walletAddress.Text;
                     timeleft.Text = License.Status.Expiration_Date.ToString();
                     if (Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat() && Properties.Settings.Default.BSCNODE.Length > 4 &&
                         Properties.Settings.Default.PK.Length == 66)
                     {
-                        buyBtn.IsEnabled = true;
+                        AproveBtn.IsEnabled = true;
+                    buyBtn.IsEnabled = true;
                         sellBtn.IsEnabled = true;
                         sellBtnAll.IsEnabled = true;
                         sellBtnX.IsEnabled = true;
@@ -192,65 +197,69 @@ namespace BotWpf
                 {
                     try
                     {
-                        var bnbPrice2 = await _bot.TokenValueTask(bnbcontrac, busdcontrac);
-                    
-                        bnbBalance = await _bot.GetAccountBalance();
-                        await  Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                            bnbBalanceD=bnbBalance;
-                        }), DispatcherPriority.Render);
-                        var buytoken = "";
-                        bool route=false;
-                        tokenBuy.Dispatcher.Invoke(
-                            DispatcherPriority.Normal,
-                            (ThreadStart)delegate { buytoken = fromBuy.Text; });
-                        await    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                            bnbName.Content = "BNB Balance";
-                            pairBalance.Content = bnbBalanceD.ToString();
-                            bnbPrice =(decimal) bnbPrice2;
-                        }), DispatcherPriority.Render);
-          
-                        var text = "";
-                        tokenBuy.Dispatcher.Invoke(
-                            DispatcherPriority.Normal,
-                            (ThreadStart)delegate { text = tokenBuy.Text; });
-                        if (text.IsValidEthereumAddressHexFormat())
+                        if (Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat())
                         {
-                            decimal value2 = 0;
-                            var result = await _bot.TokenBalanceAsync(text);
-                            BigDecimal value = 0;
-                            
-                            if (buytoken == "BNB")
+                            var bnbPrice2 = await _bot.TokenValueTask(bnbcontrac, busdcontrac);
+
+                            bnbBalance = await _bot.GetAccountBalance();
+                            await Application.Current.Dispatcher.BeginInvoke(
+                                new Action(() => { bnbBalanceD = bnbBalance; }), DispatcherPriority.Render);
+                            var buytoken = "";
+                            bool route = false;
+                            tokenBuy.Dispatcher.Invoke(
+                                DispatcherPriority.Normal,
+                                (ThreadStart) delegate { buytoken = fromBuy.Text; });
+                            await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                             {
-                                value = await _bot.TokenValueTask(text, bnbcontrac);
-                                if(bnbPrice!=0)
-                                    value = (decimal) (value * bnbPrice);
-                            }
-                            else
+                                bnbName.Content = "BNB Balance";
+                                pairBalance.Content = bnbBalanceD.ToString();
+                                bnbPrice = (decimal) bnbPrice2;
+                            }), DispatcherPriority.Render);
+
+                            var text = "";
+                            tokenBuy.Dispatcher.Invoke(
+                                DispatcherPriority.Normal,
+                                (ThreadStart) delegate { text = tokenBuy.Text; });
+                            if (text.IsValidEthereumAddressHexFormat())
                             {
-                                if (buytoken == "BUSD")
+                                decimal value2 = 0;
+                                var result = await _bot.TokenBalanceAsync(text);
+                                BigDecimal value = 0;
+
+                                if (buytoken == "BNB")
                                 {
-                                    value = await _bot.TokenValueTask(text, busdcontrac);
-                                
+                                    value = await _bot.TokenValueTask(text, bnbcontrac);
+                                    if (bnbPrice != 0)
+                                        value = (decimal) (value * bnbPrice);
                                 }
                                 else
                                 {
-                                    if (buytoken == "USDT")
+                                    if (buytoken == "BUSD")
                                     {
-                                        value = await _bot.TokenValueTask(text, usdtContract);
-                                    
+                                        value = await _bot.TokenValueTask(text, busdcontrac);
+
+                                    }
+                                    else
+                                    {
+                                        if (buytoken == "USDT")
+                                        {
+                                            value = await _bot.TokenValueTask(text, usdtContract);
+
+                                        }
                                     }
                                 }
-                            }
-                            await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                            {
-                                tokenBalanceD = result;
-                                tokenBalance.Text = result.ToString();
-                                tokenVl.Content = value.ToString();
-                            }), DispatcherPriority.Render);
 
-                    }
-                    
-                    
+                                await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    tokenBalanceD = result;
+                                    tokenBalance.Text = result.ToString();
+                                    tokenVl.Content = value.ToString();
+                                }), DispatcherPriority.Render);
+
+                            }
+                        }
+
+
                     }
                     catch (Exception e)
                     {
@@ -303,7 +312,8 @@ namespace BotWpf
             {
                 decimal slip = 0;
                 var pair = new TokenSearchResult();
-                buyBtn.IsEnabled = false;
+                AproveBtn.IsEnabled = false;
+            buyBtn.IsEnabled = false;
                 sellBtn.IsEnabled = false;
                 sellBtnAll.IsEnabled = false;
                 sellBtnX.IsEnabled = false;
@@ -438,8 +448,8 @@ namespace BotWpf
                                                 gweiAmount.Text);
                                             if (resultado.result == "Success")
                                             {
-                                                tokenPriceBuyc = tokenPriceLast;
-                                                tokenPriceBuy = tokenPriceLast * decimal.Parse(resultado.value);
+                                                
+                                                tokenPriceBuy = resultado.price* bnbPrice;
                                                 tokenbuyPrice.Content = tokenPriceBuy.ToString();
                                 if (approveAfter.IsOn)
                                 {
@@ -462,7 +472,7 @@ namespace BotWpf
                                 if (autoSellOn.IsOn)
                                 {
                                     DoingSomething = false;
-                                    amountSell.Text = resultado.value;
+                                    amountSell.Text = resultado.value.ToString();
                                     AutosellTask(int.Parse(delay.Text), decimal.Parse(profitT.Text));
                                 }
 
@@ -635,8 +645,8 @@ namespace BotWpf
                                var resultado = await _bot.DeBNBaToken(amountBuy.Text, slip, lista, gweiAmount.Text);
                                 if (resultado.result == "Success")
                                 {
-                                    tokenPriceBuyc = tokenPriceLast;
-                            tokenPriceBuy = tokenPriceLast* decimal.Parse(resultado.value);
+                                   
+                            tokenPriceBuy = resultado.price * bnbPrice;
                                     tokenbuyPrice.Content= tokenPriceBuy.ToString();
                                     resultsBuy.Add(resultado);
                                     if (approveAfter.IsOn)
@@ -659,7 +669,7 @@ namespace BotWpf
                                     if (autoSellOn.IsOn)
                                     {
                                         DoingSomething = false;
-                                        amountSell.Text = resultado.value;
+                                        amountSell.Text = resultado.value.ToString();
                                         AutosellTask(int.Parse(delay.Text), decimal.Parse(profitT.Text));
                                     }
 
@@ -671,7 +681,8 @@ namespace BotWpf
                 }
 
                 DoingSomething = false;
-                buyBtn.IsEnabled = true;
+                AproveBtn.IsEnabled = true;
+            buyBtn.IsEnabled = true;
                 sellBtn.IsEnabled = true;
                 sellBtnAll.IsEnabled = true;
                 sellBtnX.IsEnabled = true;
@@ -697,7 +708,14 @@ namespace BotWpf
 
                                             if (decimal.Parse(profitT.Text) == 0 || decimal.Parse(profitT.Text) > 1)
                                             {
-                                                return true;
+                                                if (License.Status.Licensed)
+                                                {
+                                                    return true;
+                                            }
+                                                else
+                                                {
+                                                    return false;
+                                                }
 
                                             }
                                             else
@@ -777,6 +795,10 @@ namespace BotWpf
                             Consola1.WriteOutput(Environment.NewLine + "Failed to Approve, see if token exist and see txhash", Colors.Green);
                         }
            
+                    }
+                    else
+                    {
+                        Consola1.WriteOutput(Environment.NewLine+"Wrong Address",Colors.Red);
                     }
 
                 DoingSomething = false;
@@ -918,28 +940,32 @@ namespace BotWpf
                     
                 }
 
-            if (path.Count > 0)
-            {
-               
+                if (path.Count > 0)
+                {
+                    if (License.Status.Licensed)
+                    {
+                    
+
                     result = await _bot.DeTokenABNB(amountSell.Text, slip, path, gweiAmount_Copy.Text);
                     resultsBuy.Add(result);
-                if (result.result == "Success")
-                {
-
-
-
-                    tokenPriceSell = decimal.Parse(result.ValueSpend) * tokenPriceLast;
-                    tokensellPrice.Content = tokenPriceSell.ToString();
-                    if (tokenPriceSell > tokenPriceBuy)
+                    if (result.result == "Success")
                     {
-                        tokensellPrice.Foreground = new SolidColorBrush(Colors.Green);
-                    }
-                    else
-                    {
-                        tokensellPrice.Foreground = new SolidColorBrush(Colors.Red);
-                    }
 
-              
+
+
+                        tokenPriceSell = result.price * bnbPrice;
+                        tokensellPrice.Content = tokenPriceSell.ToString();
+                        if (tokenPriceSell > tokenPriceBuy)
+                        {
+                            tokensellPrice.Foreground = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            tokensellPrice.Foreground = new SolidColorBrush(Colors.Red);
+                        }
+
+
+                    }
                 }
             }
             DoingSomething = false;
@@ -972,7 +998,7 @@ namespace BotWpf
 
             public async Task AutosellTask(int delay, decimal profit)
             {
-                var calc = tokenPriceBuyc * profit;
+                var calc = tokenPriceBuy * profit;
                 try
                 {
                     await Task.Delay(delay*1000);
@@ -1067,11 +1093,13 @@ namespace BotWpf
             }
 
 
-            private void stop_Click(object sender, RoutedEventArgs e)
+            private async void stop_Click(object sender, RoutedEventArgs e)
             {
                 cancellationTokenSource.Cancel();
+                await Task.Delay(100);
                 cancellationTokenSource.Dispose();
                 cancellationTokenSource = new CancellationTokenSource();
+                
             }
 
             private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -1229,6 +1257,11 @@ namespace BotWpf
         private void Consola1_Loaded(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void ActivateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            LoadLicense();
         }
     }
 

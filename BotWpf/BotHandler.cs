@@ -21,18 +21,23 @@ using Nethereum.Util;
 using Nethereum.Web3.Accounts;
 using Nethereum.Uniswap.Contracts.UniswapV2Router02.ContractDefinition;
 using Newtonsoft.Json.Linq;
+using Nethereum.ABI.FunctionEncoding.Attributes;
+using Nethereum.BlockchainProcessing.Processor;
 
+using Nethereum.RPC.Eth.DTOs;
 using MahApps.Metro.Controls;
+using Block = Nethereum.BlockchainProcessing.BlockStorage.Entities.Block;
+
 
 namespace BotWpf
 {
 
     public class Bot
     {
-       // public static string bnbcontrac = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-      //  public static string busdcontrac = "0xe9e7cea3dedca5984780bafc599bd69add087d56";
-        public static string bnbcontrac = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
-        public static string busdcontrac = "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684";
+        public static string bnbcontrac = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+        public static string busdcontrac = "0xe9e7cea3dedca5984780bafc599bd69add087d56";
+       // public static string bnbcontrac = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
+      //  public static string busdcontrac = "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684";
         public static string usdtContract = "0x55d398326f99059fF775485246999027B3197955";
         public static string pancakeSwapFactoryAddress = "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73";
         // public static string pancakeSwapFactoryAddressTest = "0xCDe540d7eAFE93aC5fE6233Bee57E1270D3E330F";
@@ -118,7 +123,7 @@ namespace BotWpf
         public void ChangeWallet(string wallet)
         {
             if(wallet.IsValidEthereumAddressHexFormat())
-            myWallet=wallet;
+                myWallet=wallet;
             else
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                     { MainWindow.Instance.Consola1.WriteOutput(Environment.NewLine + "Invalid Wallet Address", Colors.Red); }));
@@ -139,6 +144,8 @@ namespace BotWpf
                 _console.WriteOutput(Environment.NewLine + "Invalid Private Key, if metamask add 0x before PK", Colors.Red); 
            
         }
+
+  
         public async Task<bool> RugdocCheck(string token)
         {
 
@@ -149,7 +156,7 @@ namespace BotWpf
                 var responseObject = JObject.Parse(rugdocStr);
                 var valid = responseObject["status"].Value<string>().Equals("OK", StringComparison.InvariantCultureIgnoreCase);
 
-                _console.WriteOutput(Environment.NewLine + String.Format("Rugdoc check token {0} Status: {1} RugDoc Response: {2}", token, valid, rugdocStr), Colors.Red);
+                _console.WriteOutput(Environment.NewLine + $"Rugdoc check token {token} Status: {valid} RugDoc Response: {rugdocStr}", Colors.Red);
 
                 return valid;
             }
@@ -265,7 +272,7 @@ namespace BotWpf
 
 
             var web3 = new Web3(bscNode);
-
+            
             string routerABI =
                 "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_factory\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_WETH\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"WETH\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenA\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"tokenB\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountADesired\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountBDesired\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountAMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountBMin\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"addLiquidity\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountA\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountB\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"liquidity\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountTokenDesired\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountTokenMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountETHMin\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"addLiquidityETH\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountToken\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountETH\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"liquidity\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"factory\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountOut\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reserveIn\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reserveOut\",\"type\":\"uint256\"}],\"name\":\"getAmountIn\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountIn\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountIn\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reserveIn\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reserveOut\",\"type\":\"uint256\"}],\"name\":\"getAmountOut\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountOut\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountOut\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"}],\"name\":\"getAmountsIn\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountIn\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"}],\"name\":\"getAmountsOut\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountA\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reserveA\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reserveB\",\"type\":\"uint256\"}],\"name\":\"quote\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountB\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenA\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"tokenB\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"liquidity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountAMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountBMin\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"removeLiquidity\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountA\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountB\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"liquidity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountTokenMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountETHMin\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"removeLiquidityETH\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountToken\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountETH\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"liquidity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountTokenMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountETHMin\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"removeLiquidityETHSupportingFeeOnTransferTokens\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountETH\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"liquidity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountTokenMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountETHMin\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"approveMax\",\"type\":\"bool\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"removeLiquidityETHWithPermit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountToken\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountETH\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"liquidity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountTokenMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountETHMin\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"approveMax\",\"type\":\"bool\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"removeLiquidityETHWithPermitSupportingFeeOnTransferTokens\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountETH\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenA\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"tokenB\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"liquidity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountAMin\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountBMin\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"approveMax\",\"type\":\"bool\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"removeLiquidityWithPermit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amountA\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountB\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountOut\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapETHForExactTokens\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountOutMin\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapExactETHForTokens\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountOutMin\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapExactETHForTokensSupportingFeeOnTransferTokens\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountIn\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountOutMin\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapExactTokensForETH\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountIn\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountOutMin\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapExactTokensForETHSupportingFeeOnTransferTokens\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountIn\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountOutMin\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapExactTokensForTokens\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountIn\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountOutMin\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapExactTokensForTokensSupportingFeeOnTransferTokens\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountOut\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountInMax\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapTokensForExactETH\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amountOut\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountInMax\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"path\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"name\":\"swapTokensForExactTokens\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]";
             string factoryABI =
@@ -416,19 +423,19 @@ namespace BotWpf
                                 }
                                 else
                                 {
-                                pairContractAddress = await service.GetPairQueryAsync(token, usdtContract);
-                                if (pairContractAddress != "0x0000000000000000000000000000000000000000")
-                                {
-                                    result.pairAddress = pairContractAddress;
-                                    result.tokenPair = busdcontrac;
-                                    result.isFound = true;
-                                    result.pairP = 1;
-                                    _console.WriteOutput(Environment.NewLine + "Pair found: USDT", Colors.Red);
+                                    pairContractAddress = await service.GetPairQueryAsync(token, usdtContract);
+                                    if (pairContractAddress != "0x0000000000000000000000000000000000000000")
+                                    {
+                                        result.pairAddress = pairContractAddress;
+                                        result.tokenPair = busdcontrac;
+                                        result.isFound = true;
+                                        result.pairP = 1;
+                                        _console.WriteOutput(Environment.NewLine + "Pair found: USDT", Colors.Red);
 
 
-                                    return result;
+                                        return result;
+                                    }
                                 }
-                            }
                             
                         }
                     }
@@ -527,11 +534,13 @@ namespace BotWpf
                     resultado.result = "Success";
                     if (swapLog.Count == 1)
                     {
-                        temp = Web3.Convert.FromWei(swapLog[0].Event.Amount0Out);
+                       
 
-                        resultado.value = temp.ToString();
-                        temp = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
-                        resultado.ValueSpend = temp.ToString();
+                        resultado.value =   Web3.Convert.FromWei(swapLog[0].Event.Amount1Out);
+                       
+                        resultado.ValueSpend =  Web3.Convert.FromWei(swapLog[0].Event.Amount0In);
+                        if(resultado.value!=0&&resultado.ValueSpend!=0)
+                            resultado.price = resultado.ValueSpend / resultado.value;
                         _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Colors.Green);
                       
                         
@@ -540,11 +549,13 @@ namespace BotWpf
                     {
                         if (swapLog.Count == 2)
                         {
-                            temp = Web3.Convert.FromWei(swapLog[1].Event.Amount1Out);
+                             
 
-                            resultado.value = temp.ToString();
-                            temp = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
-                            resultado.ValueSpend = temp.ToString();
+                            resultado.value = Web3.Convert.FromWei(swapLog[1].Event.Amount0Out);
+                            
+                            resultado.ValueSpend = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
+                            if (resultado.value != 0 && resultado.ValueSpend != 0)
+                                resultado.price = resultado.ValueSpend / resultado.value;
                             _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Colors.Green);
                             
                            
@@ -564,10 +575,10 @@ namespace BotWpf
                 {
 
                     resultado = new TxResult();
-                    resultado.value = "0";
+                    resultado.value = 0;
                     resultado.txHash = swapReceipt.TransactionHash;
                     resultado.Time = DateTime.Now;
-                    resultado.ValueSpend = "0";
+                    resultado.ValueSpend = 0;
                     resultado.result = "Failed";
                     _console.WriteOutput(Environment.NewLine + "Failed Tx: " + swapReceipt.TransactionHash, Colors.Red); 
                     
@@ -790,7 +801,7 @@ namespace BotWpf
                 var result = await Task.Run(async () => { return swapReceipt.Status.HexValue; });
                 if (result == "0x1")
                 {
-                    decimal temp = 0;
+                    
                     resultado = new TxResult();
 
                     resultado.txHash = swapReceipt.TransactionHash;
@@ -799,10 +810,12 @@ namespace BotWpf
                     resultado.result = "Success";
                     if (swapLog.Count == 1)
                     {
-                        temp = Web3.Convert.FromWei(swapLog[0].Event.Amount1Out);
-                        resultado.value = temp.ToString();
-                        temp = Web3.Convert.FromWei(swapLog[0].Event.Amount0In);
-                        resultado.ValueSpend = temp.ToString();
+                          
+                        resultado.value = Web3.Convert.FromWei(swapLog[0].Event.Amount0Out);
+                     
+                        resultado.ValueSpend = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
+                        if (resultado.value != 0 && resultado.ValueSpend != 0)
+                            resultado.price = resultado.value / resultado.ValueSpend;
                         _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Colors.Green); 
 
                         
@@ -813,10 +826,12 @@ namespace BotWpf
                     {
                         if (swapLog.Count == 2)
                         {
-                            temp = Web3.Convert.FromWei(swapLog[1].Event.Amount1Out);
-                            resultado.value = temp.ToString();
-                            temp = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
-                            resultado.ValueSpend = temp.ToString();
+                            
+                            resultado.value =  Web3.Convert.FromWei(swapLog[1].Event.Amount1Out);
+                         
+                            resultado.ValueSpend = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
+                            if (resultado.value != 0 && resultado.ValueSpend != 0)
+                                resultado.price = resultado.value / resultado.ValueSpend;
                             _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[1].Event.Amount1Out).ToString(), Colors.Green);
                             
                             return resultado;
@@ -838,8 +853,8 @@ namespace BotWpf
                     resultado.result = "Failed";
                     if (swapLog.Count > 0)
                     {
-                        resultado.value = swapLog[0].Event.Amount1In.ToString();
-                        resultado.ValueSpend = swapLog[0].Event.Amount0Out.ToString();
+                        resultado.value = (decimal)Web3.Convert.ToWei(swapLog[0].Event.Amount1In);
+                        resultado.ValueSpend = (decimal)Web3.Convert.ToWei(swapLog[0].Event.Amount0Out);
                     }
                     _console.WriteOutput(Environment.NewLine + "Failed Tx: " + swapReceipt.TransactionHash, Colors.Red); 
 
@@ -890,12 +905,16 @@ namespace BotWpf
 
     public class TxResult
     {
+        public TxResult()
+        {
+            price = 0;
+        }
         public string txHash { get; set; }
         public string result { get; set; }
-        public string value { get; set; }
-        public string ValueSpend { get; set; }
+        public decimal value { get; set; }
+        public decimal ValueSpend { get; set; }
         public DateTime Time { get; set; }
-
+        public decimal price { get; set; }
     }
     public class TokenSearchResult
     {
@@ -907,6 +926,7 @@ namespace BotWpf
             pairAddressUSDT = "";
             tokenPair = "";
             isFound = false;
+            
         }
         public int pairP { get; set; }
         public string pairAddress { get; set; }
@@ -914,7 +934,7 @@ namespace BotWpf
         public string pairAddressUSDT { get; set; }
         public string tokenPair { get; set; }
         public bool isFound { get; set; }
-
+        
 
     }
 
