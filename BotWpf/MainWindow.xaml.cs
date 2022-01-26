@@ -12,13 +12,15 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using BotHandler;
 using MahApps.Metro.Controls;
 using Nethereum.Util;
 using Nethereum.Web3;
 using Newtonsoft.Json.Linq;
-
+ 
 namespace BotWpf
 {
     /// <summary>
@@ -51,20 +53,21 @@ namespace BotWpf
         public static MainWindow Instance;
         static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static bool DoingSomething = false;
-
+        public ConsoleWrapper Consola;
         
     public MainWindow()
         {
             InitializeComponent();
             Instance = this;
-            _bot = new Bot(Properties.Settings.Default.Wallet, Properties.Settings.Default.PK,
-                Properties.Settings.Default.BSCNODE, "pancake", ref Consola1);
+            Consola = new ConsoleWrapper(Consola1);
+            _bot = new Bot(BotHandler.Properties.Settings.Default.Wallet, BotHandler.Properties.Settings.Default.PK,
+                BotHandler.Properties.Settings.Default.BSCNODE, "pancake",  Consola);
             buyTxGrid.ItemsSource = resultsBuy;
             _httpClient = new HttpClient();
             Task.Run(async () => await TokenBalance());
-             walletAddress.Text= Properties.Settings.Default.Wallet ;
-            bscNode.Text = Properties.Settings.Default.BSCNODE;
-            pkAddress.Password = Properties.Settings.Default.PK;
+             walletAddress.Text= BotHandler.Properties.Settings.Default.Wallet ;
+            bscNode.Text = BotHandler.Properties.Settings.Default.BSCNODE;
+            pkAddress.Password = BotHandler.Properties.Settings.Default.PK;
             buyBtn.IsEnabled = false;
             sellBtn.IsEnabled = false;
             AproveBtn.IsEnabled = false;
@@ -145,8 +148,8 @@ namespace BotWpf
                     
               
                     
-                    if (Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat() && Properties.Settings.Default.BSCNODE.Length > 4 &&
-                        Properties.Settings.Default.PK.Length == 66)
+                    if (BotHandler.Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat() && BotHandler.Properties.Settings.Default.BSCNODE.Length > 4 &&
+                        BotHandler.Properties.Settings.Default.PK.Length == 66)
                     {
                         AproveBtn.IsEnabled = true;
                     buyBtn.IsEnabled = true;
@@ -172,7 +175,7 @@ namespace BotWpf
                 {
                     try
                     {
-                        if (Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat())
+                        if (BotHandler.Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat())
                         {
                             var bnbPrice2 = await _bot.TokenValueTask(bnbcontrac, busdcontrac);
 
@@ -1073,10 +1076,10 @@ namespace BotWpf
 
             private void Button_Click_2(object sender, RoutedEventArgs e)
             {
-                Properties.Settings.Default.Wallet = walletAddress.Text;
-                Properties.Settings.Default.BSCNODE = bscNode.Text;
-                Properties.Settings.Default.PK = pkAddress.Password;
-                Properties.Settings.Default.Save();
+                BotHandler.Properties.Settings.Default.Wallet = walletAddress.Text;
+                BotHandler.Properties.Settings.Default.BSCNODE = bscNode.Text;
+                BotHandler.Properties.Settings.Default.PK = pkAddress.Password;
+                BotHandler.Properties.Settings.Default.Save();
                 _bot.ChangeNode(bscNode.Text);
                 _bot.ChangePK(pkAddress.Password);
                 _bot.ChangeWallet(walletAddress.Text);
@@ -1445,6 +1448,59 @@ namespace BotWpf
         public string Slip2 { get; set; }
         public string delay { get; set; }
     }
-    
 
+
+
+    internal static class NativeMethods
+    {
+        // See http://msdn.microsoft.com/en-us/library/ms649021%28v=vs.85%29.aspx
+        public const int WM_CLIPBOARDUPDATE = 0x031D;
+        public static IntPtr HWND_MESSAGE = new IntPtr(-3);
+
+        // See http://msdn.microsoft.com/en-us/library/ms632599%28VS.85%29.aspx#message_only
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AddClipboardFormatListener(IntPtr hwnd);
+    }
+    public class ClipboardManager
+    {
+        public event EventHandler ClipboardChanged;
+
+        public ClipboardManager(Window windowSource)
+        {
+            HwndSource source = PresentationSource.FromVisual(windowSource) as HwndSource;
+            if (source == null)
+            {
+                throw new ArgumentException(
+                    "Window source MUST be initialized first, such as in the Window's OnSourceInitialized handler."
+                    , nameof(windowSource));
+            }
+
+            source.AddHook(WndProc);
+
+            // get window handle for interop
+            IntPtr windowHandle = new WindowInteropHelper(windowSource).Handle;
+
+            // register for clipboard events
+            NativeMethods.AddClipboardFormatListener(windowHandle);
+        }
+
+        private void OnClipboardChanged()
+        {
+            ClipboardChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private static readonly IntPtr WndProcSuccess = IntPtr.Zero;
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == NativeMethods.WM_CLIPBOARDUPDATE)
+            {
+                OnClipboardChanged();
+                handled = true;
+            }
+
+            return WndProcSuccess;
+        }
+    }
 }

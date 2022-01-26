@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Bot ico2 (2).ico</ApplicationIcon>
     <Authors>Pinko Bot</Authors>
@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BotHandler\BotHandler.csproj" />
     <ProjectReference Include="C:\Users\halod\Desktop\consolecontrol-master\source\ConsoleControl.WPF\ConsoleControl.WPF.csproj" />
     <ProjectReference Include="C:\Users\halod\Desktop\consolecontrol-master\source\ConsoleControlAPI\ConsoleControlAPI.csproj" />
   </ItemGroup>

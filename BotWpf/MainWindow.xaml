@@ -6,11 +6,12 @@
                   xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                   xmlns:consoleControl="clr-namespace:ConsoleControl.WPF;assembly=ConsoleControl.WPF"
                   xmlns:local="clr-namespace:BotWpf"
-                  
+                  xmlns:botHandler="clr-namespace:BotHandler;assembly=BotHandler"
+
                   mc:Ignorable="d"
                   Title="PinkoBot" Height="737" Width="1234" ResizeMode="CanMinimize">
     <Window.Resources>
-        <local:TxResult x:Key="TxResult"/>
+        
         <local:MyDataSource x:Key="Ods"/>
         <ControlTemplate x:Key="ValidationTemplate">
             <DockPanel>

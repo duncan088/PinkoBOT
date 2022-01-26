@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Interop;
+﻿
+using System.Drawing;
 using Nethereum.Web3;
 using Nethereum.Contracts;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Threading;
 using Nethereum.Uniswap.Contracts.UniswapV2Factory;
 using Nethereum.Uniswap.Contracts.UniswapV2Pair;
 using Nethereum.Uniswap.Contracts.UniswapV2Pair.ContractDefinition;
@@ -21,15 +11,12 @@ using Nethereum.Util;
 using Nethereum.Web3.Accounts;
 using Nethereum.Uniswap.Contracts.UniswapV2Router02.ContractDefinition;
 using Newtonsoft.Json.Linq;
-using Nethereum.ABI.FunctionEncoding.Attributes;
-using Nethereum.BlockchainProcessing.Processor;
 
-using Nethereum.RPC.Eth.DTOs;
-using MahApps.Metro.Controls;
+
 using Block = Nethereum.BlockchainProcessing.BlockStorage.Entities.Block;
 
 
-namespace BotWpf
+namespace BotHandler
 {
 
     public class Bot
@@ -54,12 +41,12 @@ namespace BotWpf
         private string privateKey = "";
         private string bscNode = "https://bsc-dataseed2.defibit.io/";
         private HttpClient _httpClient;
-        private ConsoleControl.WPF.ConsoleControl _console = new();
+        private IConsole _console ;
         private readonly string RugdocCheckUrl =
             "https://honeypot.api.rugdoc.io/api/honeypotStatus.js?address={0}&chain=bsc";
 
 
-        public Bot(string wallet, string pk, string node, string swap, ref ConsoleControl.WPF.ConsoleControl controller)
+        public Bot(string wallet, string pk, string node, string swap, IConsole controller)
         {
             _console = controller;
             _httpClient = new HttpClient();
@@ -125,8 +112,7 @@ namespace BotWpf
             if(wallet.IsValidEthereumAddressHexFormat())
                 myWallet=wallet;
             else
-                Application.Current.Dispatcher.Invoke(new Action(() =>
-                    { MainWindow.Instance.Consola1.WriteOutput(Environment.NewLine + "Invalid Wallet Address", Colors.Red); }));
+               _console.Write(Environment.NewLine + "Invalid Wallet Address", Color.Red); 
             
         }
 
@@ -141,7 +127,7 @@ namespace BotWpf
                 privateKey=pk;
             else
 
-                _console.WriteOutput(Environment.NewLine + "Invalid Private Key, if metamask add 0x before PK", Colors.Red); 
+                _console.Write(Environment.NewLine + "Invalid Private Key, if metamask add 0x before PK", Color.Red); 
            
         }
 
@@ -156,14 +142,14 @@ namespace BotWpf
                 var responseObject = JObject.Parse(rugdocStr);
                 var valid = responseObject["status"].Value<string>().Equals("OK", StringComparison.InvariantCultureIgnoreCase);
 
-                _console.WriteOutput(Environment.NewLine + $"Rugdoc check token {token} Status: {valid} RugDoc Response: {rugdocStr}", Colors.Red);
+                _console.Write(Environment.NewLine + $"Rugdoc check token {token} Status: {valid} RugDoc Response: {rugdocStr}", Color.Red);
 
                 return valid;
             }
             catch (Exception e)
             {
 
-                _console.WriteOutput(Environment.NewLine + e.Message + " Contact Support", Colors.Red);
+                _console.Write(Environment.NewLine + e.Message + " Contact Support", Color.Red);
 
                 return false;
             }
@@ -205,7 +191,7 @@ namespace BotWpf
             catch (Exception e)
             {
 
-                _console.WriteOutput(Environment.NewLine + "No price for token " + DateTime.Now.TimeOfDay, Colors.Red);
+                _console.Write(Environment.NewLine + "No price for token " + DateTime.Now.TimeOfDay, Color.Red);
 
             }
 
@@ -257,8 +243,8 @@ namespace BotWpf
             catch (Exception e)
             {
 
-                _console.WriteOutput(
-                    Environment.NewLine + "Slippage failed may not have price yet", Colors.Red);
+                _console.Write(
+                    Environment.NewLine + "Slippage failed may not have price yet", Color.Red);
 
             }
 
@@ -304,14 +290,14 @@ namespace BotWpf
                         return result;
                     }
 
-                    _console.WriteOutput(Environment.NewLine + "No pairs yet", Colors.Red);
+                    _console.Write(Environment.NewLine + "No pairs yet", Color.Red);
                     await Task.Delay(500);
                 }
 
             }
             catch (Exception e)
             {
-                _console.WriteOutput(Environment.NewLine+e.Message + "Contact Support", Colors.Red);
+                _console.Write(Environment.NewLine+e.Message + "Contact Support", Color.Red);
                 
                 return result;
             }
@@ -344,7 +330,7 @@ namespace BotWpf
                             result.tokenPair = usdtContract;
                             result.isFound = true;
                             result.pairP = 1;
-                            _console.WriteOutput(Environment.NewLine + "Pair found: USDT", Colors.Red);
+                            _console.Write(Environment.NewLine + "Pair found: USDT", Color.Red);
                         
                           
                         }
@@ -359,7 +345,7 @@ namespace BotWpf
                             result.tokenPair = busdcontrac;
                             result.isFound = true;
                             result.pairP = 1;
-                            _console.WriteOutput(Environment.NewLine + "Pair found: BUSD", Colors.Red);
+                            _console.Write(Environment.NewLine + "Pair found: BUSD", Color.Red);
                    
                            
 
@@ -375,7 +361,7 @@ namespace BotWpf
                             result.tokenPair = bnbcontrac;
                             result.isFound = true;
                             result.pairP = 1;
-                            _console.WriteOutput(Environment.NewLine + "Pair found: BNB", Colors.Red);
+                            _console.Write(Environment.NewLine + "Pair found: BNB", Color.Red);
                           
                          
                         }
@@ -400,7 +386,7 @@ namespace BotWpf
                                 result.tokenPair = bnbcontrac;
                                 result.isFound = true;
                                 result.pairP = 1;
-                                _console.WriteOutput(Environment.NewLine + "Pair found: BNB", Colors.Red);
+                                _console.Write(Environment.NewLine + "Pair found: BNB", Color.Red);
                              
                                
                                 return result;
@@ -416,7 +402,7 @@ namespace BotWpf
                                     result.tokenPair = busdcontrac;
                                     result.isFound = true;
                                     result.pairP = 1;
-                                    _console.WriteOutput(Environment.NewLine + "Pair found: BUSD", Colors.Red); 
+                                    _console.Write(Environment.NewLine + "Pair found: BUSD", Color.Red); 
 
 
                                     return result;
@@ -430,7 +416,7 @@ namespace BotWpf
                                         result.tokenPair = busdcontrac;
                                         result.isFound = true;
                                         result.pairP = 1;
-                                        _console.WriteOutput(Environment.NewLine + "Pair found: USDT", Colors.Red);
+                                        _console.Write(Environment.NewLine + "Pair found: USDT", Color.Red);
 
 
                                         return result;
@@ -440,7 +426,7 @@ namespace BotWpf
                         }
                     }
 
-                    _console.WriteOutput(Environment.NewLine + "Not found Retrying Time:"+DateTime.Now, Colors.Red);
+                    _console.Write(Environment.NewLine + "Not found Retrying Time:"+DateTime.Now, Color.Red);
                     
                    
                     await Task.Delay(500);
@@ -450,7 +436,7 @@ namespace BotWpf
             }
             catch (Exception e)
             {
-                _console.WriteOutput(Environment.NewLine +e.Message+ "Contact support", Colors.Red);
+                _console.Write(Environment.NewLine +e.Message+ "Contact support", Color.Red);
                 
                
                 return result;
@@ -541,7 +527,7 @@ namespace BotWpf
                         resultado.ValueSpend =  Web3.Convert.FromWei(swapLog[0].Event.Amount0In);
                         if(resultado.value!=0&&resultado.ValueSpend!=0)
                             resultado.price = resultado.ValueSpend / resultado.value;
-                        _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Colors.Green);
+                        _console.Write(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Color.Green);
                       
                         
                     }
@@ -556,13 +542,13 @@ namespace BotWpf
                             resultado.ValueSpend = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
                             if (resultado.value != 0 && resultado.ValueSpend != 0)
                                 resultado.price = resultado.ValueSpend / resultado.value;
-                            _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Colors.Green);
+                            _console.Write(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Color.Green);
                             
                            
                         }
                         else
                         {
-                            _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: ", Colors.Green);
+                            _console.Write(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: ", Color.Green);
                             
                           
                         }
@@ -580,7 +566,7 @@ namespace BotWpf
                     resultado.Time = DateTime.Now;
                     resultado.ValueSpend = 0;
                     resultado.result = "Failed";
-                    _console.WriteOutput(Environment.NewLine + "Failed Tx: " + swapReceipt.TransactionHash, Colors.Red); 
+                    _console.Write(Environment.NewLine + "Failed Tx: " + swapReceipt.TransactionHash, Color.Red); 
                     
                     return resultado;
                 }
@@ -588,7 +574,7 @@ namespace BotWpf
             }
             catch (Exception ex)
             {
-                _console.WriteOutput(Environment.NewLine + ex.Message + Environment.NewLine + "Contact support", Colors.Red); 
+                _console.Write(Environment.NewLine + ex.Message + Environment.NewLine + "Contact support", Color.Red); 
                
                
                 return
@@ -626,7 +612,7 @@ namespace BotWpf
                     {
                         reserve0 = Web3.Convert.FromWei(result.Reserve1, UnitConversion.EthUnit.Ether);
                     }
-                    _console.WriteOutput(Environment.NewLine + "Getting liquidity: " + reserve0, Colors.Red);
+                    _console.Write(Environment.NewLine + "Getting liquidity: " + reserve0, Color.Red);
 
                    
                     await Task.Delay(300);
@@ -636,7 +622,7 @@ namespace BotWpf
             }
             catch (Exception e)
             {
-                _console.WriteOutput(Environment.NewLine + e.Message + "Contact Support", Colors.Red);
+                _console.Write(Environment.NewLine + e.Message + "Contact Support", Color.Red);
 
               
 
@@ -649,7 +635,7 @@ namespace BotWpf
             decimal reserve1 = 0;
             decimal reserve2 = 0;
             string token0 = "";
-            var web3 = new Web3(Properties.Settings.Default.BSCNODE);
+            var web3 = new Web3(bscNode);
 
             UniswapV2PairService uniservices = new UniswapV2PairService(web3, pairAddress.pairAddress);
             try
@@ -713,7 +699,7 @@ namespace BotWpf
             }
             catch (Exception e)
             {
-                _console.WriteOutput(Environment.NewLine + e.Message + "Contact Support", Colors.Red); 
+                _console.Write(Environment.NewLine + e.Message + "Contact Support", Color.Red); 
 
                
             
@@ -743,7 +729,7 @@ namespace BotWpf
                     result.result = "Success";
                     result.txHash = result2.TransactionHash;
                     result.Time = DateTime.Now;
-                    _console.WriteOutput(Environment.NewLine + "Success Tx: " + result2.TransactionHash, Colors.Green);
+                    _console.Write(Environment.NewLine + "Success Tx: " + result2.TransactionHash, Color.Green);
 
                     
                 }
@@ -752,7 +738,7 @@ namespace BotWpf
                     result.result = "Failed";
                     result.txHash = result2.TransactionHash;
                     result.Time = DateTime.Now;
-                    _console.WriteOutput(Environment.NewLine + "Failed Tx: " + result2.TransactionHash, Colors.Red); 
+                    _console.Write(Environment.NewLine + "Failed Tx: " + result2.TransactionHash, Color.Red); 
 
                     
 
@@ -762,7 +748,7 @@ namespace BotWpf
             }
             catch (Exception e)
             {
-                _console.WriteOutput(Environment.NewLine + e.Message + Environment.NewLine + "Contact support", Colors.Red); 
+                _console.Write(Environment.NewLine + e.Message + Environment.NewLine + "Contact support", Color.Red); 
 
                
                 return new TxResult();
@@ -816,7 +802,7 @@ namespace BotWpf
                         resultado.ValueSpend = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
                         if (resultado.value != 0 && resultado.ValueSpend != 0)
                             resultado.price = resultado.value / resultado.ValueSpend;
-                        _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Colors.Green); 
+                        _console.Write(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[0].Event.Amount1In).ToString(), Color.Green); 
 
                         
                         
@@ -832,13 +818,13 @@ namespace BotWpf
                             resultado.ValueSpend = Web3.Convert.FromWei(swapLog[0].Event.Amount1In);
                             if (resultado.value != 0 && resultado.ValueSpend != 0)
                                 resultado.price = resultado.value / resultado.ValueSpend;
-                            _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[1].Event.Amount1Out).ToString(), Colors.Green);
+                            _console.Write(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: " + Web3.Convert.FromWei(swapLog[1].Event.Amount1Out).ToString(), Color.Green);
                             
                             return resultado;
                         }
                         else
                         {
-                            _console.WriteOutput(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: ", Colors.Green);
+                            _console.Write(Environment.NewLine + "Success Tx: " + swapReceipt.TransactionHash + "Value: ", Color.Green);
                             
                             return resultado;
                         }
@@ -856,7 +842,7 @@ namespace BotWpf
                         resultado.value = (decimal)Web3.Convert.ToWei(swapLog[0].Event.Amount1In);
                         resultado.ValueSpend = (decimal)Web3.Convert.ToWei(swapLog[0].Event.Amount0Out);
                     }
-                    _console.WriteOutput(Environment.NewLine + "Failed Tx: " + swapReceipt.TransactionHash, Colors.Red); 
+                    _console.Write(Environment.NewLine + "Failed Tx: " + swapReceipt.TransactionHash, Color.Red); 
 
                     
                     return resultado;
@@ -864,7 +850,7 @@ namespace BotWpf
             }
             catch (Exception ex)
             {
-                _console.WriteOutput(Environment.NewLine + ex.Message + Environment.NewLine + "Contact support", Colors.Red);
+                _console.Write(Environment.NewLine + ex.Message + Environment.NewLine + "Contact support", Color.Red);
 
                 
               
@@ -951,59 +937,6 @@ namespace BotWpf
     }
 
 
-
-    internal static class NativeMethods
-    {
-        // See http://msdn.microsoft.com/en-us/library/ms649021%28v=vs.85%29.aspx
-        public const int WM_CLIPBOARDUPDATE = 0x031D;
-        public static IntPtr HWND_MESSAGE = new IntPtr(-3);
-
-        // See http://msdn.microsoft.com/en-us/library/ms632599%28VS.85%29.aspx#message_only
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool AddClipboardFormatListener(IntPtr hwnd);
-    }
-    public class ClipboardManager
-    {
-        public event EventHandler ClipboardChanged;
-
-        public ClipboardManager(Window windowSource)
-        {
-            HwndSource source = PresentationSource.FromVisual(windowSource) as HwndSource;
-            if (source == null)
-            {
-                throw new ArgumentException(
-                    "Window source MUST be initialized first, such as in the Window's OnSourceInitialized handler."
-                    , nameof(windowSource));
-            }
-
-            source.AddHook(WndProc);
-
-            // get window handle for interop
-            IntPtr windowHandle = new WindowInteropHelper(windowSource).Handle;
-
-            // register for clipboard events
-            NativeMethods.AddClipboardFormatListener(windowHandle);
-        }
-
-        private void OnClipboardChanged()
-        {
-            ClipboardChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        private static readonly IntPtr WndProcSuccess = IntPtr.Zero;
-
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            if (msg == NativeMethods.WM_CLIPBOARDUPDATE)
-            {
-                OnClipboardChanged();
-                handled = true;
-            }
-
-            return WndProcSuccess;
-        }
-    }
 
    
 }
