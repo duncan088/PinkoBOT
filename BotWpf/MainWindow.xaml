@@ -258,7 +258,7 @@
                         <ColumnDefinition Width="593*"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Wallet" FontSize="20" FontWeight="Bold" Margin="10,4,848,503" Grid.ColumnSpan="2"/>
-                    <TextBox x:Name="walletAddress" TextWrapping="Wrap"  Margin="90,10,45,620" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Validation.ErrorTemplate="{StaticResource ValidationTemplate}" IsReadOnly="True"
+                    <TextBox x:Name="walletAddress" TextWrapping="Wrap"  Margin="90,10,45,620" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Validation.ErrorTemplate="{StaticResource ValidationTemplate}" IsReadOnly="False"
                              Style="{StaticResource TextBoxInError}" Grid.Column="1">
                         <TextBox.Text>
                             <Binding Path="wallet" Source="{StaticResource Ods}" 
@@ -272,7 +272,7 @@
                     <Label Content="Private Key" FontSize="20" FontWeight="Bold" Margin="10,39,920,468" Grid.ColumnSpan="2"/>
                     <Label Content="BSC Node" FontSize="20" FontWeight="Bold" Margin="10,79,962,443" Grid.ColumnSpan="2"/>
                     <PasswordBox  x:Name="pkAddress"  Margin="90,44,45,582" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Grid.Column="1"/>
-                    <Button Content="Save" Margin="136,213,614,412" Click="Button_Click_2" Grid.Column="1"/>
+                    <Button Content="Save" Margin="354,209,396,416" Click="Button_Click_2" Grid.Column="1"/>
                     <TextBox x:Name="bscNode" TextWrapping="Wrap" Text="" Margin="90,79,45,545" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False" Grid.Column="1"/>
 
 
@@ -282,7 +282,6 @@
                     <Label Content="ExpireTime" FontSize="20" FontWeight="Bold" Margin="10,119,1006,416" Grid.ColumnSpan="2"/>
                     <TextBox x:Name="timeleft" TextWrapping="Wrap"  Margin="90,124,44,503" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" SnapsToDevicePixels="False"  IsReadOnly="True"
                       Grid.Column="1" Text="0"/>
-                    <Button x:Name="ActivateBtn" Content="Activate" Margin="577,213,173,412"  Grid.Column="1" Click="ActivateBtn_Click"/>
 
                 </Grid>
             </TabItem>

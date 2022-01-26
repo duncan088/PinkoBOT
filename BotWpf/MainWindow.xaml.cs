@@ -70,33 +70,12 @@ namespace BotWpf
             AproveBtn.IsEnabled = false;
             sellBtnAll.IsEnabled = false;
             sellBtnX.IsEnabled = false;
-            try
-            {
-                LoadLicense();
-            }
-            catch (Exception e)
-            {
-                Consola1.WriteOutput(Environment.NewLine+"No license found",Colors.Red);
-                
-            }
+            
             ValDatos();
           
         }
 
-    private void LoadLicense()
-    {
-        try
-        {
-            License.Status.LoadLicense("Key.license");
-            ValDatos();
-            }
-        catch (Exception e)
-        {
-            Consola1.WriteOutput(Environment.NewLine + "No license found", Colors.Red);
-
-            }
-       
-    }
+    
 
     protected override void OnSourceInitialized(EventArgs e)
         {
@@ -161,12 +140,11 @@ namespace BotWpf
             public async void ValDatos()
             {
 
-                if (License.Status.Licensed)
-                {
-                    var key = License.Status.KeyValueList.Values;
-                    walletAddress.Text=key.OfType<string>().FirstOrDefault();
-                this.Title = "Pinko Bot - " + walletAddress.Text;
-                    timeleft.Text = License.Status.Expiration_Date.ToString();
+              
+                    
+                    
+              
+                    
                     if (Properties.Settings.Default.Wallet.IsValidEthereumAddressHexFormat() && Properties.Settings.Default.BSCNODE.Length > 4 &&
                         Properties.Settings.Default.PK.Length == 66)
                     {
@@ -180,11 +158,8 @@ namespace BotWpf
                     {
                         Consola1.WriteOutput("Please set account info before continue.", Colors.Red);
                     }
-            }
-                else
-                {
-                    this.Title = "Pinko Bot - Unlicensed";
-                }
+            
+               
                 
                 
           
@@ -708,14 +683,9 @@ namespace BotWpf
 
                                             if (decimal.Parse(profitT.Text) == 0 || decimal.Parse(profitT.Text) > 1)
                                             {
-                                                if (License.Status.Licensed)
-                                                {
+                                               
                                                     return true;
-                                            }
-                                                else
-                                                {
-                                                    return false;
-                                                }
+                                           
 
                                             }
                                             else
@@ -942,8 +912,7 @@ namespace BotWpf
 
                 if (path.Count > 0)
                 {
-                    if (License.Status.Licensed)
-                    {
+                    
                     
 
                     result = await _bot.DeTokenABNB(amountSell.Text, slip, path, gweiAmount_Copy.Text);
@@ -966,7 +935,7 @@ namespace BotWpf
 
 
                     }
-                }
+                
             }
             DoingSomething = false;
                 AproveBtn.IsEnabled = true;
@@ -1259,10 +1228,7 @@ namespace BotWpf
 
         }
 
-        private void ActivateBtn_Click(object sender, RoutedEventArgs e)
-        {
-            LoadLicense();
-        }
+      
     }
 
 

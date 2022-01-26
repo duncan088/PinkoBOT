@@ -43,12 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="License">
-      <HintPath>..\..\..\Eziriz\.NET Reactor\SDK\Binaries\License.dll .NET 5\License.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
